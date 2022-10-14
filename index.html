@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta http-equiv="content-type" content="text/html:charset=utf-8" />
+    <title>Joguinho do balacobaco</title>
+</head>
+<body>
+    <canvas width="1305" height="645"></canvas>
+    <script>
+        (function(){
+            var cnv = document.querySelector('canvas');
+            var ctx = cnv.getContext('2d');
+
+            //recursos 
+            var background = new Image();
+            background.src = "fundo.png";
+
+            var dog = new Image();
+            dog.src = "dog.png";
+
+            var torta = new Image();
+            torta.src = "torta.png";
+
+            //objetos
+            var sprites = [];
+
+            var torta = {
+                img: torta,
+                x: 0,
+                y: 0,
+                width: 20,
+                height: 14
+            };
+
+            var gameWorld = {
+                img: background,
+                x: 0,
+                y: 0,
+                width: 2000,
+                height: 2000
+            };
+            sprites.push(gameWorld);
+
+            var char = {
+                img: dog,
+                x: 0,
+                y: 0,
+                width:60,
+                height:60
+            };
+            sprites.push(char);
+            //centralizar o char
+            char.x = (gameWorld.width - char.width)/2;
+            char.y = (gameWorld.height - char.height)/2;
+
+            var cam = {
+                x: 0,
+                y: 0,
+                width: cnv.width,
+                height: cnv.height,
+                leftEdge: function(){
+                    return this.x + (this.width * 0.35);
+                },
+                rigthEdge: function(){
+                    return this.x + (this.width * 0.65);
+                },
+                topEdge: function(){
+                    return this.y + (this.height * 0.35);
+                },
+                bottomEdge: function(){
+                    return this.y + (this.height * 0.65);
+                }
+            };
+
+            //centralizar a camera
+            cam.x = (gameWorld.width - cam.width)/2;
+            cam.y = (gameWorld.height - cam.height)/2;
+
+            //mover o char
+            var mvLeft = mvRight = mvUp = mvDown = false;
+            window.addEventListener('keydown',function(e){
+                var key = e.keyCode;
+                switch(key){
+                    case 37:
+                        mvLeft = true;{
+                            dog.src= "dog.png"
+                        }
+                        break;
+                    case 39:
+                        mvRight = true;{
+                            dog.src = "god.png"
+                        }
+                        break;
+                    case 38:
+                        mvUp = true;{
+                            dog.src = "g.png"
+                        }
+                        break;
+                    case 40:
+                        mvDown = true;{
+                            dog.src = "d.png"
+                        }
+                        break;
+                }
+            },false);
+
+            // if(mvLeft, mvRight, mvDown, mvUp = false){
+                // dog.src= "zzz.png"
+            //}
+        
+            window.addEventListener('keyup',function(e){
+                var key = e.keyCode;
+                switch(key){
+                    case 37:
+                        mvLeft = false;
+                        break;
+                    case 39:
+                        mvRight = false;
+                        break;
+                    case 38:
+                        mvUp = false;
+                        break;
+                    case 40:
+                        mvDown = false;
+                        break;
+                }
+            },false);
+
+            function loop(){
+                window.requestAnimationFrame(loop,cnv);
+                update();
+                render();
+            }
+
+            function update(){
+                if(mvLeft && !mvRight){
+                    char.x -= 9;
+                }
+                if(mvRight && !mvLeft){
+                    char.x += 9;
+                }
+                if(mvUp && !mvDown){
+                    char.y -= 9;
+                }
+                if(mvDown && !mvUp){
+                    char.y += 9;
+                }
+
+                //limite do char
+                if(char.x < 100){
+                    char.x = 100;
+                }
+                if(char.x + char.width > gameWorld.width){
+                    char.x = gameWorld.width - char.width;
+                }
+                if(char.y < 90){
+                    char.y = 90;
+                }
+                if(char.y + char.height > gameWorld.height){
+                    char.y = gameWorld.height - char.height;
+                }
+
+
+                if(char.x > 1830){
+                    char.x = 1830;
+                }
+                if(char.x + char.width > gameWorld.width){
+                    char.x = gameWorld.width - char.width;
+                }
+                if(char.y > 1750){
+                    char.y = 1750;
+                }
+                if(char.y + char.height > gameWorld.height){
+                    char.y = gameWorld.height - char.height;
+                }
+
+                //atualizar a posicao da camera em funcao do char
+                if(char.x < cam.leftEdge()){
+                    cam.x = char.x - (cam.width * 0.35);
+                }
+                if(char.x + char.width > cam.rigthEdge()){
+                    cam.x = char.x + char.width - (cam.width * 0.65);
+                }
+                if(char.y < cam.topEdge()){
+                    cam.y = char.y - (cam.height * 0.35);
+                }
+                if(char.y + char.height > cam.bottomEdge()){
+                    cam.y = char.y + char.height - (cam.height * 0.65);
+                }
+
+                //limite da camera
+                if(cam.x < 0){
+                    cam.x = 0;
+                }
+                if(cam.x + cam.width > gameWorld.width){
+                    cam.x = gameWorld.width - cam.width;
+                }
+                if(cam.y < 0){
+                    cam.y = 0;
+                }
+                if(cam.y + cam.height > gameWorld.height){
+                    cam.y = gameWorld.height - cam.height;
+                }
+            }
+
+            function render(){
+                ctx.save();
+                ctx.translate(-cam.x, -cam.y);
+                for(var i in sprites){
+                    var spr = sprites[i];
+                    ctx.drawImage(spr.img,0,0,spr.width,spr.height,spr.x,spr.y,spr.width,spr.height);
+            }
+            ctx.restore();
+            ctx.font = "bold 40px Arial "
+            ctx.fillText("SCORE: 0",10,30);
+        }
+        loop();
+        }());
+    </script>
+</body>
+</html>
